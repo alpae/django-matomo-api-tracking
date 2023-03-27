@@ -3,7 +3,7 @@ name = "django-matomo-api-tracking"
 version = "0.1.0"
 description = "Django app to track webtraffic serverside with Matomo API"
 authors = ["Adrian Altenhoff <adrian.altenhoff@inf.ethz.ch>"]
-license = "MIT"
+license = "BSD"
 readme = "README.md"
 packages = [{include = "matomo_api_tracking"}]
 

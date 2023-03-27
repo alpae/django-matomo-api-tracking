@@ -4,7 +4,7 @@ import uuid
 import random
 from django.conf import settings
 from django.utils.translation import get_language_from_request
-from urllib.parse import urlencode, urlparse, quote
+from urllib.parse import urlencode, quote
 
 VERSION = '1'
 COOKIE_NAME = '__matomo'

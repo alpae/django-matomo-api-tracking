@@ -21,7 +21,7 @@ class MatomoApiTrackingMiddleware:
         try:
             account = settings.MATOMO_API_TRACKING['site_id']
             ignore_paths = settings.MATOMO_API_TRACKING.get('ignore_paths', [])
-        except (AttributeError, KeyError) as e:
+        except (AttributeError, KeyError):
             raise Exception("Matomo configuration incomplete")
 
         # do not log pages that start with an ignore_path url

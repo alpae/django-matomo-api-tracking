@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-
-import unittest
-import django
 import responses
 from collections import ChainMap
 from urllib.parse import parse_qs
@@ -21,6 +18,7 @@ class MatomoTestCase(TestCase):
         We don't have any normal views, so we're creating fake
         views using django's RequestFactory
         """
+
         def mock_view(request):
             return HttpResponse("")
 
@@ -30,7 +28,6 @@ class MatomoTestCase(TestCase):
         session_middleware.process_request(request)
         request.session.save()
         return request
-
 
     @override_settings(
         MIDDLEWARE=[
@@ -52,7 +49,7 @@ class MatomoTestCase(TestCase):
 
         html = ("<html><head><title>"
                 "ما-مدى-جاهزيتك-للإنترنت</title></head></html>")
-        middleware = MatomoApiTrackingMiddleware(lambda req: HttpResponse(html))
+        middleware = MatomoApiTrackingMiddleware(lambda r: HttpResponse(html))
         response = middleware(request)
         uid = response.cookies.get(COOKIE_NAME).value
 
@@ -68,7 +65,8 @@ class MatomoTestCase(TestCase):
         self.assertEqual(parse_qs(track_url).get('action_name'), [
             '%D9%85%D8%A7-%D9%85%D8%AF%D9%89-%D8%AC%D8%A7%D9%87%D8%B2%D9%8A%D8'
             '%AA%D9%83-%D9%84%D9%84%D8%A5%D9%86%D8%AA%D8%B1%D9%86%D8%AA'])
-        self.assertEqual(parse_qs(track_url).get('idsite'), [str(settings.MATOMO_API_TRACKING['site_id'])])
+        self.assertEqual(parse_qs(track_url).get('idsite'),
+                         [str(settings.MATOMO_API_TRACKING['site_id'])])
         self.assertEqual(parse_qs(track_url).get('_id'), [uid])
         self.assertEqual(len(uid), 16)
         self.assertEqual(parse_qs(track_url).get('cip'), ['100.100.200.10'])
@@ -94,7 +92,7 @@ class MatomoTestCase(TestCase):
             '/sections/deep-soul/ما-مدى-جاهزيتك-للإنترنت/', headers)
 
         html = "<html><head><title>title</title></head></html>"
-        middleware = MatomoApiTrackingMiddleware(lambda req: HttpResponse(html))
+        middleware = MatomoApiTrackingMiddleware(lambda r: HttpResponse(html))
         response = middleware(request)
 
         api_dict = build_api_params(
@@ -109,7 +107,7 @@ class MatomoTestCase(TestCase):
         request = self.make_fake_request('/somewhere/')
 
         api_dict_without_uid = build_api_params(
-            request, 'ua-test-id', '/some/path/',)
+            request, 'ua-test-id', '/some/path/', )
 
         api_dict_with_uid = build_api_params(
             request, 'ua-test-id', '/some/path/', user_id='402-3a6')
@@ -124,7 +122,7 @@ class MatomoTestCase(TestCase):
         headers = {'HTTP_HOST': 'localhost:8000'}
         request = self.make_fake_request('/somewhere/', headers)
         api_dict_without_referal = build_api_params(
-            request, 'ua-test-id', '/some/path/',)
+            request, 'ua-test-id', '/some/path/', )
         api_dict_without_direct_referal = build_api_params(
             request, 'ua-test-id', '/some/path/',
             referer='http://test.com/some/path/')
@@ -152,7 +150,7 @@ class MatomoTestCase(TestCase):
         request = self.make_fake_request('/somewhere/')
 
         api_dict_without_custom = build_api_params(
-            request, 'ua-test-id', '/some/path/',)
+            request, 'ua-test-id', '/some/path/', )
 
         api_dict_with_custom = build_api_params(
             request, 'ua-test-id', '/some/path/',
@@ -188,7 +186,8 @@ class MatomoTestCase(TestCase):
 
         self.assertEqual(parse_qs(track_url).get('url'), ['/somewhere/'])
         self.assertEqual(parse_qs(track_url).get('action_name'), None)
-        self.assertEqual(parse_qs(track_url).get('idsite'), [str(settings.MATOMO_API_TRACKING['site_id'])])
+        self.assertEqual(parse_qs(track_url).get('idsite'),
+                         [str(settings.MATOMO_API_TRACKING['site_id'])])
         self.assertEqual(parse_qs(track_url).get('_id'), [uid])
         self.assertEqual(len(uid), 16)
         self.assertEqual(parse_qs(track_url).get('cip'), ['100.100.200.10'])
@@ -196,12 +195,12 @@ class MatomoTestCase(TestCase):
     @override_settings(MIDDLEWARE=[
         'django.contrib.sessions.middleware.SessionMiddleware',
         'matomo_api_tracking.middleware.MatomoApiTrackingMiddleware'
-    ], MATOMO_API_TRACKING=ChainMap({'ignore_paths': ['/ignore-this']}, settings.MATOMO_API_TRACKING))
+    ], MATOMO_API_TRACKING=ChainMap({'ignore_paths': ['/ignore-this']},
+                                    settings.MATOMO_API_TRACKING))
     def test_matomo_middleware_ignore_path(self):
         request = self.make_fake_request('/ignore-this/somewhere/')
         middleware = MatomoApiTrackingMiddleware(lambda req: HttpResponse())
         middleware(request)
-
         self.assertEqual(len(responses.calls), 0)
 
     @override_settings(MIDDLEWARE=[

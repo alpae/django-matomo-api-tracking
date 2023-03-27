@@ -48,9 +48,9 @@ jobs:
         with:
           python-version: "3.x"
       - name: Install build dependancies
-        run: pip install --upgrade pip setuptools wheel
+        run: pip install --upgrade pip setuptools build poetry
       - name: Build
-        run: python setup.py sdist bdist_wheel
+        run: poetry build
       - uses: pypa/gh-action-pypi-publish@release/v1
         if: startsWith(github.ref, 'refs/tags')
         with:

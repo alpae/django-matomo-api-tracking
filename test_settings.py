@@ -43,7 +43,7 @@ STATIC_URL = ''
 MATOMO_API_TRACKING = {
         'url': 'https://your-matomo-server.com/',
         'site_id': 1,
-        #'ignore_paths': ["/debug/", "/health/"],
+        # 'ignore_paths': ["/debug/", "/health/"],
     }
 
 CUSTOM_UIP_HEADER = 'HTTP_X_IORG_FBS_UIP'

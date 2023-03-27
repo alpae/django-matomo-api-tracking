@@ -101,6 +101,7 @@ class MatomoTestCase(TestCase):
         self.assertEqual(parse_qs(api_dict.get('url')).get('action_name'), [
             '%D9%85%D8%A7-%D9%85%D8%AF%D9%89-%D8%AC%D8%A7%D9%87%D8%B2%D9%8A%D8'
             '%AA%D9%83-%D9%84%D9%84%D8%A5%D9%86%D8%AA%D8%B1%D9%86%D8%AA'])
+        self.assertIsNotNone(response)
 
     @responses.activate
     def test_build_api_params_for_user_id(self):

@@ -17,7 +17,8 @@ def send_matomo_tracking(params):
     if resp.ok:
         logger.debug("successfully sent tracking request: {}".format(url))
     else:
-        logger.warning("sending tracking request failed: {}".format(resp.reason))
+        logger.warning("sending tracking request failed: {}"
+                       .format(resp.reason))
         qs = parse_qs(urlparse(url).query)
         logger.warning("url-query-params: {}; User-Agent: {}; language: {}"
                        .format(qs, user_agent, language))

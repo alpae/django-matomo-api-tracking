@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import logging
 import responses
 from collections import ChainMap
 from urllib.parse import parse_qs
@@ -9,6 +10,7 @@ from django.test.client import Client, RequestFactory
 from django.conf import settings
 from .middleware import MatomoApiTrackingMiddleware
 from .utils import COOKIE_NAME, build_api_params
+from .tasks import logger as task_logger
 
 
 class MatomoTestCase(TestCase):
@@ -212,3 +214,29 @@ class MatomoTestCase(TestCase):
         client = Client()
         with self.assertRaises(Exception):
             client.get('/home/?p=%2Fhome&r=test.com')
+
+    @responses.activate
+    def test_sending_tracking_request_logs(self):
+        request = self.make_fake_request('/somewhere/')
+        responses.add(
+            responses.GET, settings.MATOMO_API_TRACKING['url'],
+            body='',
+            status=200)
+        middleware = MatomoApiTrackingMiddleware(lambda req: HttpResponse())
+        with self.assertLogs(task_logger, logging.DEBUG) as cm:
+            middleware(request)
+        self.assertIn("successfully sent tracking request", cm.output[0])
+
+    @responses.activate
+    def test_sending_tracking_request_logs_failure_as_errors(self):
+        request = self.make_fake_request('/somewhere/')
+        responses.add(
+            responses.GET, settings.MATOMO_API_TRACKING['url'],
+            body='',
+            status=400)
+        middleware = MatomoApiTrackingMiddleware(lambda req: HttpResponse())
+        with self.assertLogs(task_logger, logging.WARNING) as cm:
+            middleware(request)
+        self.assertIn("sending tracking request failed:", cm.output[0])
+        self.assertIn("Bad Request", cm.output[0])
+        self.assertIn("/somewhere/", cm.output[1])

@@ -58,6 +58,7 @@ def build_api_params(
     if hasattr(settings, 'CUSTOM_UIP_HEADER') and settings.CUSTOM_UIP_HEADER:
         custom_uip = meta.get(settings.CUSTOM_UIP_HEADER)
     path = path or request.GET.get('p', '/')
+    path = request.build_absolute_uri(quote(path.encode('utf-8')))
 
     # get client ip address
     if 'HTTP_X_FORWARDED_FOR' in meta and meta.get('HTTP_X_FORWARDED_FOR', ''):
@@ -86,7 +87,7 @@ def build_api_params(
         'rand': str(random.randint(0, 0x7fffffff)),
         '_id': visitor_id,
         'urlref': referer,
-        'url': quote(path.encode('utf-8')),
+        'url': path,
         'cip': custom_uip or client_ip,
     }
 

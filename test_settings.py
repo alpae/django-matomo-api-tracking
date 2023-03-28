@@ -49,5 +49,6 @@ MATOMO_API_TRACKING = {
 CUSTOM_UIP_HEADER = 'HTTP_X_IORG_FBS_UIP'
 
 TEST_RUNNER = 'matomo_api_tracking.test_runner.CeleryTestSuiteRunner'
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 CELERY_ALWAYS_EAGER = True

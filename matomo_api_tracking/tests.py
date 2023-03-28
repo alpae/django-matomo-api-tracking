@@ -61,7 +61,7 @@ class MatomoTestCase(TestCase):
 
         self.assertEqual(
             parse_qs(track_url).get('url'), [
-                '/sections/deep-soul/%D9%85%D8%A7-%D9%85%D8%AF%D9%89-'
+                'http://testserver/sections/deep-soul/%D9%85%D8%A7-%D9%85%D8%AF%D9%89-'
                 '%D8%AC%D8%A7%D9%87%D8%B2%D9%8A%D8%AA%D9%83-%D9%84%D9'
                 '%84%D8%A5%D9%86%D8%AA%D8%B1%D9%86%D8%AA/'])
         self.assertEqual(parse_qs(track_url).get('action_name'), [
@@ -187,7 +187,7 @@ class MatomoTestCase(TestCase):
 
         track_url = responses.calls[0].request.url
 
-        self.assertEqual(parse_qs(track_url).get('url'), ['/somewhere/'])
+        self.assertEqual(parse_qs(track_url).get('url'), ['http://testserver/somewhere/'])
         self.assertEqual(parse_qs(track_url).get('action_name'), None)
         self.assertEqual(parse_qs(track_url).get('idsite'),
                          [str(settings.MATOMO_API_TRACKING['site_id'])])

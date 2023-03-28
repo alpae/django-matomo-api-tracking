@@ -71,7 +71,7 @@ class MatomoTestCase(TestCase):
                          [str(settings.MATOMO_API_TRACKING['site_id'])])
         self.assertEqual(parse_qs(track_url).get('_id'), [uid])
         self.assertEqual(len(uid), 16)
-        self.assertEqual(parse_qs(track_url).get('cip'), ['100.100.200.10'])
+        self.assertIsNone(parse_qs(track_url).get('cip'))
 
     @override_settings(
         MIDDLEWARE=[
@@ -193,7 +193,40 @@ class MatomoTestCase(TestCase):
                          [str(settings.MATOMO_API_TRACKING['site_id'])])
         self.assertEqual(parse_qs(track_url).get('_id'), [uid])
         self.assertEqual(len(uid), 16)
-        self.assertEqual(parse_qs(track_url).get('cip'), ['100.100.200.10'])
+        self.assertIsNone(parse_qs(track_url).get('cip'))
+
+    @override_settings(MIDDLEWARE=[
+        'django.contrib.sessions.middleware.SessionMiddleware',
+        'matomo_api_tracking.middleware.MatomoApiTrackingMiddleware'
+    ], MATOMO_API_TRACKING=ChainMap({'token_auth': ['33dc3f2536d3025974cccb4b4d2d98f4']},
+                                    settings.MATOMO_API_TRACKING))
+    def test_matomo_middleware_sends_cip_with_token_auth(self):
+        @responses.activate
+        def test_matomo_middleware_no_title(self):
+            responses.add(
+                responses.GET, settings.MATOMO_API_TRACKING['url'],
+                body='',
+                status=200)
+
+            headers = {'HTTP_X_IORG_FBS_UIP': '100.100.200.10'}
+            request = self.make_fake_request('/somewhere/', headers)
+
+            middleware = MatomoApiTrackingMiddleware(lambda req: HttpResponse())
+            response = middleware(request)
+            uid = response.cookies.get(COOKIE_NAME).value
+
+            # check tracking request sent to server
+            self.assertEqual(len(responses.calls), 1)
+
+            track_url = responses.calls[0].request.url
+
+            self.assertEqual(parse_qs(track_url).get('url'), ['http://testserver/somewhere/'])
+            self.assertEqual(parse_qs(track_url).get('action_name'), None)
+            self.assertEqual(parse_qs(track_url).get('idsite'),
+                             [str(settings.MATOMO_API_TRACKING['site_id'])])
+            self.assertEqual(parse_qs(track_url).get('_id'), [uid])
+            self.assertEqual(len(uid), 16)
+            self.assertEqual(parse_qs(track_url).get('cip'), ['100.100.200.10'])
 
     @override_settings(MIDDLEWARE=[
         'django.contrib.sessions.middleware.SessionMiddleware',

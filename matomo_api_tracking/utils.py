@@ -88,12 +88,18 @@ def build_api_params(
         '_id': visitor_id,
         'urlref': referer,
         'url': path,
-        'cip': custom_uip or client_ip,
     }
 
     # add user ID if exists
     if user_id:
         params.update({'uid': user_id})
+
+    # if token_auth is specified, we can add the cip parameter (visitor's IP)
+    try:
+        token_auth = settings.MATOMO_API_TRACKING['token_auth']
+        params.update({'token_auth': token_auth, 'cip': custom_uip or client_ip})
+    except KeyError:
+        pass
 
     # add custom parameters
     params.update(custom_params)
